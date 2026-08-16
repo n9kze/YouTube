@@ -6,34 +6,46 @@
     <title>NFT Upgrader</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background-color: #121212; color: #ffffff; font-family: Arial, sans-serif; text-align: center; padding: 20px; margin: 0; }
-        .card { background: #1e1e1e; border-radius: 16px; padding: 20px; margin: 20px auto; max-width: 300px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .nft-icon { font-size: 60px; margin: 10px 0; }
-        button { background: #0088cc; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; width: 100%; }
-        button:active { transform: scale(0.98); }
+        :root { --neon: #00f2ff; }
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow: hidden; color: white; }
+        #bg-video { position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; width: auto; height: auto; z-index: -2; object-fit: cover; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.45); z-index: -1; }
+        .box { border: 2px solid var(--neon); padding: 30px 20px; border-radius: 20px; box-shadow: 0 0 25px rgba(0, 242, 255, 0.35); width: 85%; max-width: 360px; text-align: center; background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        h1 { margin: 0 0 15px 0; color: var(--neon); text-transform: uppercase; letter-spacing: 2px; font-size: 22px; text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
+        .stats { font-size: 26px; font-weight: bold; margin: 20px 0; letter-spacing: 1px; }
+        .btn { background: transparent; border: 2px solid var(--neon); color: var(--neon); padding: 15px 30px; border-radius: 12px; font-size: 18px; cursor: pointer; transition: all 0.2s ease; width: 100%; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 0 10px rgba(0, 242, 255, 0.2); }
+        .btn:active { background: var(--neon); color: #000; transform: scale(0.96); box-shadow: 0 0 20px rgba(0, 242, 255, 0.8); }
     </style>
 </head>
 <body>
-    <h2>NFT Upgrader</h2>
-    <div class="card">
-        <div class="nft-icon">💎</div>
-        <h3 id="level">Уровень: 1</h3>
-        <button onclick="upgradeNFT()">Апгрейд!</button>
+    <video autoplay loop muted playsinline id="bg-video">
+        <source src="https://files.catbox.moe/k363g3.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+    <div class="box">
+        <h1>NFT UPGRADER</h1>
+        <div class="stats" id="lvl">Уровень: 1</div>
+        <button class="btn" onclick="upgrade()">ПРОКАЧАТЬ</button>
     </div>
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        let currentLevel = 1;
-        function upgradeNFT() {
-            const success = Math.random() < 0.5;
-            if (success) {
-                currentLevel++;
-                document.getElementById('level').innerText = `Уровень: ${currentLevel}`;
-                tg.HapticFeedback?.notificationOccurred('success');
-                alert('🎉 Успешный апгрейд!');
+        let lvl = 1;
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+        }
+        function upgrade() {
+            if(Math.random() > 0.5) {
+                lvl++;
+                document.getElementById('lvl').innerText = "Уровень: " + lvl;
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }
             } else {
-                tg.HapticFeedback?.notificationOccurred('error');
-                alert('💥 Неудача!');
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+                }
+                alert("Неудача! Попробуйте снова.");
             }
         }
     </script>
