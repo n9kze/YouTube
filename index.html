@@ -9,42 +9,46 @@
         :root { --gold: #FFD700; }
         body { margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; color: white; overflow: hidden; }
         
-        /* Фон */
         #bg-img { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: -1; }
         
-        h1 { margin-bottom: 30px; font-size: 20px; color: #ddd; text-transform: uppercase; letter-spacing: 1px; }
+        h1 { margin-bottom: 20px; font-size: 18px; color: #ddd; text-transform: uppercase; letter-spacing: 1px; }
 
-        .wheel-wrapper { position: relative; width: 250px; height: 250px; display: flex; align-items: center; justify-content: center; }
+        /* Контейнер чуть меньше и поднят выше */
+        .wheel-wrapper { position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; }
 
         .wheel {
-            width: 200px; height: 200px; border-radius: 50%;
-            border: 15px solid rgba(255, 255, 255, 0.1);
+            width: 150px; height: 150px; border-radius: 50%;
+            border: 10px solid rgba(255, 255, 255, 0.1);
             background: conic-gradient(var(--gold) 0% 30%, transparent 30% 100%);
             display: flex; align-items: center; justify-content: center;
         }
 
         .center-text { text-align: center; font-weight: bold; }
-        .perc { font-size: 32px; display: block; }
-        .label { font-size: 14px; color: #aaa; text-transform: uppercase; }
+        .perc { font-size: 24px; display: block; }
+        .label { font-size: 12px; color: #aaa; text-transform: uppercase; }
 
-        .pointer-container { position: absolute; width: 100%; height: 100%; transition: transform 3s cubic-bezier(0.15, 0.9, 0.15, 1); }
+        /* Стрелка теперь вращается отдельно вокруг центра */
+        .pointer-container { position: absolute; width: 200px; height: 200px; transition: transform 3s cubic-bezier(0.15, 0.9, 0.15, 1); }
         .pointer {
-            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-            width: 0; height: 0; border-left: 10px solid transparent;
-            border-right: 10px solid transparent; border-top: 15px solid white;
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; 
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent; 
+            border-top: 25px solid white; /* Стрелка стала больше */
+            filter: drop-shadow(0 0 5px white);
         }
 
         .btn {
-            margin-top: 50px; background: #b8860b; color: white; border: none;
-            padding: 15px 80px; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer;
+            background: #b8860b; color: white; border: none;
+            padding: 15px 70px; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer;
         }
         .btn:active { background: #d4af37; transform: scale(0.98); }
         .btn:disabled { opacity: 0.5; }
     </style>
 </head>
 <body>
-    <img src="bg.jpg?v=3" id="bg-img" alt="">
+    <img src="bg.jpg?v=4" id="bg-img" alt="">
     <div class="overlay"></div>
 
     <h1>TELEGRAM GIFTS UPGRADER</h1>
@@ -75,6 +79,7 @@
             document.getElementById('btn').disabled = true;
 
             const isWin = Math.random() < 0.3;
+            // Целимся в 30% сектор (0-108 градусов)
             const targetDeg = isWin ? (Math.random() * 90) : (Math.random() * 240 + 110);
             
             rotation += 1440 + targetDeg;
