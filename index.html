@@ -11,40 +11,19 @@
     <style>
         :root { --neon: #00f2ff; }
         * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; height: 100vh; display: flex; align-items: center; justify-content: center; font-family: sans-serif; overflow: hidden; color: white; background: #000; }
         
-        body { 
-            margin: 0; padding: 0; height: 100vh; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; color: white;
-            background: #000;
-        }
-
         #bg-video {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            z-index: -2;
-            transform: translate(-50%, -50%);
-            object-fit: cover;
+            position: fixed; top: 50%; left: 50%; min-width: 100%; min-height: 100%;
+            width: auto; height: auto; z-index: -2;
+            transform: translate(-50%, -50%); object-fit: cover;
         }
 
-        .overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: -1;
-        }
-
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: -1; }
         .box { 
             border: 2px solid var(--neon); padding: 30px 20px; border-radius: 20px; 
             box-shadow: 0 0 25px rgba(0, 242, 255, 0.35); width: 85%; max-width: 360px; 
-            text-align: center; background: rgba(10, 10, 15, 0.7); 
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            text-align: center; background: rgba(10, 10, 15, 0.7); backdrop-filter: blur(10px);
         }
 
         h1 { margin: 0 0 15px 0; color: var(--neon); text-transform: uppercase; letter-spacing: 2px; font-size: 22px; }
@@ -58,8 +37,8 @@
     </style>
 </head>
 <body>
-    <video autoplay loop muted playsinline id="bg-video">
-        <source src="bg.mp4" type="video/mp4">
+    <video autoplay loop muted playsinline webkit-playsinline id="bg-video">
+        <source src="bg.mp4?v=1" type="video/mp4">
     </video>
     <div class="overlay"></div>
 
@@ -75,11 +54,11 @@
         if (tg) { tg.ready(); tg.expand(); }
 
         const video = document.getElementById('bg-video');
-        if (video) { video.play().catch(() => {}); }
-
+        // Принудительный запуск видео
+        document.body.addEventListener('click', () => { if(video.paused) video.play(); }, { once: true });
+        
         function upgrade() {
-            if (video && video.paused) { video.play(); }
-            
+            if(video.paused) video.play();
             if (Math.random() > 0.5) {
                 lvl++;
                 document.getElementById('lvl').innerText = "Уровень: " + lvl;
