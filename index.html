@@ -3,73 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gifts Selector</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Gifts Upgrader</title>
     <style>
-        body { margin: 0; padding: 20px; font-family: sans-serif; color: white; background: #111; display: flex; flex-direction: column; align-items: center; }
+        body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #111; color: white; font-family: sans-serif; }
         
-        .setup-screen { display: flex; width: 100%; justify-content: space-around; margin-top: 50px; }
-        .slot { width: 100px; height: 100px; border: 2px dashed #555; display: flex; align-items: center; justify-content: center; border-radius: 10px; cursor: pointer; }
-        .selected { border-color: gold; background: rgba(255, 215, 0, 0.1); }
-        
-        h2 { font-size: 14px; text-transform: uppercase; color: #aaa; }
-        
-        #upgrade-screen { display: none; flex-direction: column; align-items: center; width: 100%; }
-        
-        .game-wrapper { position: relative; width: 220px; height: 220px; display: flex; align-items: center; justify-content: center; margin: 40px 0; }
-        .glass-circle { width: 180px; height: 180px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; }
-        .pointer-container { position: absolute; width: 100%; height: 100%; transition: transform 4s cubic-bezier(0.15, 0.9, 0.15, 1); }
-        .pointer { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 20px solid white; }
-        
-        .btn { background: #b8860b; color: white; border: none; padding: 15px 50px; border-radius: 10px; font-weight: bold; }
+        /* Стеклянный круг с градиентом */
+        .glass-circle {
+            width: 180px; height: 180px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            /* Динамическое заполнение через conic-gradient */
+            background: conic-gradient(gold 0% var(--perc), transparent var(--perc) 100%);
+            transform: rotate(180deg); /* Начинаем снизу */
+        }
+
+        /* Внутренний слой, чтобы не перекрывать текст */
+        .inner-content {
+            width: 160px; height: 160px; border-radius: 50%;
+            background: #111;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transform: rotate(-180deg); /* Возвращаем текст в нормальное положение */
+        }
+
+        .perc { font-size: 28px; font-weight: bold; }
+        .label { font-size: 12px; color: #888; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <div id="setup-screen">
-        <h1>ВЫБОР ПРЕДМЕТОВ</h1>
-        <div style="display: flex; gap: 20px; width: 100%; justify-content: center;">
-            <div style="text-align: center">
-                <h2>Мои</h2>
-                <div class="slot" onclick="select(this, 'my')">Item 1</div>
-            </div>
-            <div style="text-align: center">
-                <h2>Желаемые</h2>
-                <div class="slot" onclick="select(this, 'wish')">Item 2</div>
-            </div>
+    <div class="glass-circle" id="wheel" style="--perc: 30%;">
+        <div class="inner-content">
+            <span class="perc">30.0%</span>
+            <span class="label">шанс</span>
         </div>
-        <button class="btn" style="margin-top: 40px;" onclick="start()">ПРОДОЛЖИТЬ</button>
     </div>
 
-    <div id="upgrade-screen">
-        <h1>UPGRADE</h1>
-        <div class="game-wrapper">
-            <div class="pointer-container" id="pointer"><div class="pointer"></div></div>
-            <div class="glass-circle"><div style="text-align:center">30.0%<br>шанс</div></div>
-        </div>
-        <button class="btn" id="btn" onclick="spin()">ПРОКАЧАТЬ</button>
-    </div>
+    <button onclick="setPerc(Math.random() * 100)" style="margin-top:20px">Тест (рандом %)</button>
 
     <script>
-        let myItem = null, wishItem = null;
-
-        function select(el, type) {
-            if(type === 'my') myItem = 'selected';
-            else wishItem = 'selected';
-            el.classList.add('selected');
-        }
-
-        function start() {
-            if(!myItem || !wishItem) return alert("Выберите оба предмета!");
-            document.getElementById('setup-screen').style.display = 'none';
-            document.getElementById('upgrade-screen').style.display = 'flex';
-        }
-
-        function spin() {
-            document.getElementById('btn').disabled = true;
-            const rot = 1440 + Math.floor(Math.random() * 360);
-            document.getElementById('pointer').style.transform = `rotate(${rot}deg)`;
-            setTimeout(() => { alert((rot % 360) <= 108 ? "Успех!" : "Неудача"); document.getElementById('btn').disabled = false; }, 4200);
+        function setPerc(val) {
+            document.getElementById('wheel').style.setProperty('--perc', val + '%');
+            document.querySelector('.perc').innerText = val.toFixed(1) + '%';
         }
     </script>
 </body>
