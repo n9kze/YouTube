@@ -7,40 +7,175 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --neon: #a855f7; }
-        body { margin: 0; padding: 0; height: 100vh; display: flex; align-items: center; justify-content: center; font-family: sans-serif; overflow: hidden; color: white; background: #0b0b12; }
+        * { box-sizing: border-box; }
+        body { 
+            margin: 0; padding: 0; height: 100vh; 
+            display: flex; align-items: center; justify-content: center; 
+            font-family: sans-serif; overflow: hidden; color: white; background: #0b0b12; 
+        }
+        
         #bg-img { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: -1; }
-        .box { border: 2px solid var(--neon); padding: 30px 20px; border-radius: 20px; box-shadow: 0 0 25px rgba(168, 85, 247, 0.4); width: 85%; max-width: 360px; text-align: center; background: rgba(15, 12, 29, 0.75); backdrop-filter: blur(10px); }
-        h1 { margin: 0 0 15px 0; color: var(--neon); text-transform: uppercase; letter-spacing: 2px; font-size: 22px; }
-        .stats { font-size: 26px; font-weight: bold; margin: 20px 0; }
-        .btn { background: transparent; border: 2px solid var(--neon); color: var(--neon); padding: 15px 30px; border-radius: 12px; font-size: 18px; cursor: pointer; transition: all 0.2s; width: 100%; font-weight: bold; text-transform: uppercase; }
+        
+        .box { 
+            border: 2px solid var(--neon); padding: 25px 20px; border-radius: 20px; 
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.4); width: 85%; max-width: 360px; 
+            text-align: center; background: rgba(15, 12, 29, 0.85); backdrop-filter: blur(10px);
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        h1 { margin: 0 0 10px 0; color: var(--neon); text-transform: uppercase; letter-spacing: 2px; font-size: 20px; }
+        .stats { font-size: 22px; font-weight: bold; margin: 10px 0; }
+
+        /* Контейнер колеса и стрелки */
+        .wheel-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 15px 0;
+        }
+
+        /* Стрелка сверху */
+        .pointer {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 18px solid var(--neon);
+            z-index: 10;
+            filter: drop-shadow(0 0 5px var(--neon));
+        }
+
+        /* Колесо */
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid var(--neon);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+            background: conic-gradient(#a855f7 0% 50%, #1e1b4b 50% 100%);
+            transition: transform 3s cubic-bezier(0.15, 0.9, 0.15, 1);
+            position: relative;
+        }
+
+        /* Центр колеса с процентом */
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: #0b0b12;
+            border: 2px solid var(--neon);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        .chance-text { font-size: 10px; color: #aaa; text-transform: uppercase; }
+        .chance-val { font-size: 18px; font-weight: bold; color: var(--neon); }
+
+        .btn { 
+            background: transparent; border: 2px solid var(--neon); color: var(--neon); 
+            padding: 12px 25px; border-radius: 12px; font-size: 18px; cursor: pointer; 
+            transition: all 0.2s; width: 100%; font-weight: bold; text-transform: uppercase; 
+            margin-top: 10px;
+        }
         .btn:active { background: var(--neon); color: #fff; transform: scale(0.96); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
-    <img src="bg.jpg?v=1" id="bg-img" alt="Background">
+    <img src="bg.jpg?v=2" id="bg-img" alt="Background">
     <div class="overlay"></div>
 
     <div class="box">
         <h1>NFT UPGRADER</h1>
         <div class="stats" id="lvl">Уровень: 1</div>
-        <button class="btn" onclick="upgrade()">ПРОКАЧАТЬ</button>
+
+        <div class="wheel-container">
+            <div class="pointer"></div>
+            <div class="wheel" id="wheel"></div>
+            <div class="wheel-center">
+                <span class="chance-text">Шанс</span>
+                <span class="chance-val" id="chance">50%</span>
+            </div>
+        </div>
+
+        <button class="btn" id="upgradeBtn" onclick="upgrade()">ПРОКАЧАТЬ</button>
     </div>
 
     <script>
         let lvl = 1;
+        let chance = 50; // Шанс выигрыша в процентах
+        let currentRotation = 0;
+        let isSpinning = false;
+
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); }
-        function upgrade() {
-            if (Math.random() > 0.5) {
-                lvl++;
-                document.getElementById('lvl').innerText = "Уровень: " + lvl;
-                tg?.HapticFeedback?.notificationOccurred('success');
-            } else {
-                tg?.HapticFeedback?.notificationOccurred('error');
-                alert("Неудача! Попробуйте снова.");
-            }
+
+        function updateWheelVisual() {
+            const wheel = document.getElementById('wheel');
+            document.getElementById('chance').innerText = chance + '%';
+            // Визуальное деление сектора согласно проценту
+            wheel.style.background = `conic-gradient(#a855f7 0% ${chance}%, #1e1b4b ${chance}% 100%)`;
         }
+
+        function upgrade() {
+            if (isSpinning) return;
+            isSpinning = true;
+
+            const btn = document.getElementById('upgradeBtn');
+            btn.disabled = true;
+
+            const roll = Math.random() * 100;
+            const isWin = roll < chance;
+
+            // Вычисляем угол поворота (3 полных оборота + нужный сектор)
+            const extraDegrees = isWin 
+                ? (Math.random() * (chance * 3.6 - 10) + 5) 
+                : (Math.random() * ((100 - chance) * 3.6 - 10) + chance * 3.6 + 5);
+
+            // Реверсируем угол, так как стрелка сверху
+            const targetSector = 360 - extraDegrees;
+            currentRotation += 1440 + targetSector; // 4 полных оборота
+
+            const wheel = document.getElementById('wheel');
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+            // Воспроизводим вибрацию при старте
+            tg?.HapticFeedback?.impactOccurred('medium');
+
+            setTimeout(() => {
+                isSpinning = false;
+                btn.disabled = false;
+
+                if (isWin) {
+                    lvl++;
+                    document.getElementById('lvl').innerText = "Уровень: " + lvl;
+                    tg?.HapticFeedback?.notificationOccurred('success');
+                    
+                    // Постепенно уменьшаем шанс с ростом уровня для азарта
+                    if (chance > 15) chance -= 5;
+                    updateWheelVisual();
+                } else {
+                    tg?.HapticFeedback?.notificationOccurred('error');
+                    alert("Неудача! Попробуйте снова.");
+                }
+            }, 3000); // 3 секунды вращения
+        }
+
+        // Инициализация
+        updateWheelVisual();
     </script>
 </body>
 </html>
