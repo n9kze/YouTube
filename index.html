@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Upgrader</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background-color: #121212; color: #ffffff; font-family: Arial, sans-serif; text-align: center; padding: 20px; margin: 0; }
+        .card { background: #1e1e1e; border-radius: 16px; padding: 20px; margin: 20px auto; max-width: 300px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .nft-icon { font-size: 60px; margin: 10px 0; }
+        button { background: #0088cc; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 12px; cursor: pointer; width: 100%; }
+        button:active { transform: scale(0.98); }
+    </style>
+</head>
+<body>
+    <h2>NFT Upgrader</h2>
+    <div class="card">
+        <div class="nft-icon">💎</div>
+        <h3 id="level">Уровень: 1</h3>
+        <button onclick="upgradeNFT()">Апгрейд!</button>
+    </div>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        let currentLevel = 1;
+        function upgradeNFT() {
+            const success = Math.random() < 0.5;
+            if (success) {
+                currentLevel++;
+                document.getElementById('level').innerText = `Уровень: ${currentLevel}`;
+                tg.HapticFeedback?.notificationOccurred('success');
+                alert('🎉 Успешный апгрейд!');
+            } else {
+                tg.HapticFeedback?.notificationOccurred('error');
+                alert('💥 Неудача!');
+            }
+        }
+    </script>
+</body>
+</html>
