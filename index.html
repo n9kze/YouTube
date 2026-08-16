@@ -3,52 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gifts Upgrader</title>
+    <title>NFT Upgrader | TON Ecosystem</title>
     <style>
-        body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #111; color: white; font-family: sans-serif; }
-        
-        /* Стеклянный круг с градиентом */
-        .glass-circle {
-            width: 180px; height: 180px; border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: center;
-            position: relative;
-            /* Динамическое заполнение через conic-gradient */
-            background: conic-gradient(gold 0% var(--perc), transparent var(--perc) 100%);
-            transform: rotate(180deg); /* Начинаем снизу */
+        :root {
+            --tg-blue: #2481cc;
+            --ton-blue: #0098ea;
+            --bg-dark: #0f0f12;
+            --card-bg: rgba(255, 255, 255, 0.06);
         }
 
-        /* Внутренний слой, чтобы не перекрывать текст */
-        .inner-content {
-            width: 160px; height: 160px; border-radius: 50%;
-            background: #111;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transform: rotate(-180deg); /* Возвращаем текст в нормальное положение */
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
 
-        .perc { font-size: 28px; font-weight: bold; }
-        .label { font-size: 12px; color: #888; text-transform: uppercase; }
+        /* Glassmorphism Card */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        h1 { font-size: 24px; margin-bottom: 10px; }
+        p { color: #a2a2a2; font-size: 14px; }
+
+        /* Эффект свечения для NFT */
+        .nft-preview {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, var(--tg-blue), var(--ton-blue));
+            border-radius: 20px;
+            margin: 20px auto;
+            box-shadow: 0 0 30px rgba(0, 152, 234, 0.3);
+        }
+
+        .btn {
+            background: var(--tg-blue);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 14px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
 
-    <div class="glass-circle" id="wheel" style="--perc: 30%;">
-        <div class="inner-content">
-            <span class="perc">30.0%</span>
-            <span class="label">шанс</span>
-        </div>
+    <div class="card">
+        <h1>Upgrade NFT</h1>
+        <p>Превратите ваш подарок в уникальный цифровой актив на блокчейне TON</p>
+        
+        <div class="nft-preview"></div>
+
+        <button class="btn">Connect Wallet</button>
     </div>
 
-    <button onclick="setPerc(Math.random() * 100)" style="margin-top:20px">Тест (рандом %)</button>
-
-    <script>
-        function setPerc(val) {
-            document.getElementById('wheel').style.setProperty('--perc', val + '%');
-            document.querySelector('.perc').innerText = val.toFixed(1) + '%';
-        }
-    </script>
 </body>
 </html>
 
