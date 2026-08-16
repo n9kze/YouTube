@@ -12,46 +12,60 @@
         #bg-img { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: -1; }
         
-        h1 { margin-bottom: 40px; font-size: 18px; color: #fff; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        h1 { margin-bottom: 50px; font-size: 18px; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* Центральный элемент: "стекло" вместо колеса */
-        .display-container {
-            width: 180px; height: 180px;
-            border-radius: 50%;
+        /* Контейнер для всего (круг + стрелка) */
+        .game-wrapper { position: relative; width: 180px; height: 180px; margin-bottom: 60px; }
+
+        /* Статичный красивый круг с текстом */
+        .glass-circle {
+            width: 100%; height: 100%; border-radius: 50%;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             display: flex; align-items: center; justify-content: center;
-            margin-bottom: 60px;
-            transition: transform 4s cubic-bezier(0.15, 0.9, 0.15, 1);
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         .center-text { text-align: center; }
-        .perc { font-size: 32px; font-weight: bold; display: block; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
-        .label { font-size: 14px; color: #ccc; text-transform: uppercase; letter-spacing: 1px; }
+        .perc { font-size: 32px; font-weight: bold; display: block; }
+        .label { font-size: 14px; color: #ccc; text-transform: uppercase; }
+
+        /* Стрелка, которая будет крутиться вокруг круга */
+        .pointer-container { 
+            position: absolute; top: -30px; left: 0; width: 100%; height: 100%; 
+            transition: transform 4s cubic-bezier(0.15, 0.9, 0.15, 1);
+        }
+        .pointer {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; 
+            border-left: 12px solid transparent; border-right: 12px solid transparent; 
+            border-top: 25px solid white; filter: drop-shadow(0 0 5px white);
+        }
 
         .btn {
             background: linear-gradient(180deg, #b8860b 0%, #8b6508 100%);
             color: white; border: none;
             padding: 16px 80px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
-        .btn:active { transform: scale(0.95); }
-        .btn:disabled { opacity: 0.5; filter: grayscale(1); }
+        .btn:disabled { opacity: 0.5; }
     </style>
 </head>
 <body>
-    <img src="bg.jpg?v=6" id="bg-img" alt="">
+    <img src="bg.jpg?v=7" id="bg-img" alt="">
     <div class="overlay"></div>
 
     <h1>TELEGRAM GIFTS UPGRADER</h1>
 
-    <!-- Этот блок теперь "крутится" -->
-    <div class="display-container" id="rotator">
-        <div class="center-text">
-            <span class="perc">30.0%</span>
-            <span class="label">шанс</span>
+    <div class="game-wrapper">
+        <div class="glass-circle">
+            <div class="center-text">
+                <span class="perc">30.0%</span>
+                <span class="label">шанс</span>
+            </div>
+        </div>
+        <div class="pointer-container" id="pointer">
+            <div class="pointer"></div>
         </div>
     </div>
 
@@ -61,8 +75,7 @@
         let currentRotation = 0;
         let isSpinning = false;
         const tg = window.Telegram?.WebApp;
-        if(tg) { tg.ready(); tg.expand(); }
-
+        
         function spin() {
             if(isSpinning) return;
             isSpinning = true;
@@ -71,25 +84,17 @@
             const randomAngle = Math.floor(Math.random() * 360);
             currentRotation += 1440 + randomAngle;
             
-            document.getElementById('rotator').style.transform = `rotate(${currentRotation}deg)`;
+            // Крутим только стрелку
+            document.getElementById('pointer').style.transform = `rotate(${currentRotation}deg)`;
 
             const finalAngle = currentRotation % 360;
-            // Логика победы осталась прежней (30% из 360 = 108 градусов)
+            // 30% шанса (сектор 0-108 градусов)
             const isWin = (finalAngle >= 0 && finalAngle <= 108);
-
-            tg?.HapticFeedback?.impactOccurred('medium');
 
             setTimeout(() => {
                 isSpinning = false;
                 document.getElementById('btn').disabled = false;
-                
-                if(isWin) {
-                    alert("🎉 Успех! Вы выиграли Букет тюльпанов!");
-                    tg?.HapticFeedback?.notificationOccurred('success');
-                } else {
-                    alert("Попробуйте снова!");
-                    tg?.HapticFeedback?.notificationOccurred('error');
-                }
+                alert(isWin ? "🎉 Победа!" : "Попробуйте снова!");
             }, 4200);
         }
     </script>
