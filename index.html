@@ -12,14 +12,13 @@
         #bg-img { position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: -1; }
         
-        h1 { margin-bottom: 20px; font-size: 18px; color: #ddd; text-transform: uppercase; letter-spacing: 1px; }
+        h1 { margin-bottom: 30px; font-size: 18px; color: #ddd; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Контейнер чуть меньше и поднят выше */
-        .wheel-wrapper { position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; }
+        .wheel-wrapper { position: relative; width: 150px; height: 150px; margin-bottom: 50px; }
 
         .wheel {
             width: 150px; height: 150px; border-radius: 50%;
-            border: 10px solid rgba(255, 255, 255, 0.1);
+            border: 8px solid rgba(255, 255, 255, 0.1);
             background: conic-gradient(var(--gold) 0% 30%, transparent 30% 100%);
             display: flex; align-items: center; justify-content: center;
         }
@@ -28,15 +27,13 @@
         .perc { font-size: 24px; display: block; }
         .label { font-size: 12px; color: #aaa; text-transform: uppercase; }
 
-        /* Стрелка теперь вращается отдельно вокруг центра */
-        .pointer-container { position: absolute; width: 200px; height: 200px; transition: transform 3s cubic-bezier(0.15, 0.9, 0.15, 1); }
+        /* Идеальное центрирование стрелки */
+        .pointer-container { position: absolute; top: -25px; left: 0; width: 100%; height: 100%; transition: transform 4s cubic-bezier(0.15, 0.9, 0.15, 1); }
         .pointer {
             position: absolute; top: 0; left: 50%; transform: translateX(-50%);
             width: 0; height: 0; 
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent; 
-            border-top: 25px solid white; /* Стрелка стала больше */
-            filter: drop-shadow(0 0 5px white);
+            border-left: 12px solid transparent; border-right: 12px solid transparent; 
+            border-top: 25px solid white; filter: drop-shadow(0 0 5px white);
         }
 
         .btn {
@@ -48,27 +45,27 @@
     </style>
 </head>
 <body>
-    <img src="bg.jpg?v=4" id="bg-img" alt="">
+    <img src="bg.jpg?v=5" id="bg-img" alt="">
     <div class="overlay"></div>
 
     <h1>TELEGRAM GIFTS UPGRADER</h1>
 
     <div class="wheel-wrapper">
-        <div class="pointer-container" id="pointer">
-            <div class="pointer"></div>
-        </div>
         <div class="wheel">
             <div class="center-text">
                 <span class="perc">30.0%</span>
                 <span class="label">шанс</span>
             </div>
         </div>
+        <div class="pointer-container" id="pointer">
+            <div class="pointer"></div>
+        </div>
     </div>
 
     <button class="btn" id="btn" onclick="spin()">ПРОКАЧАТЬ</button>
 
     <script>
-        let rotation = 0;
+        let currentRotation = 0;
         let isSpinning = false;
         const tg = window.Telegram?.WebApp;
         if(tg) { tg.ready(); tg.expand(); }
@@ -78,18 +75,27 @@
             isSpinning = true;
             document.getElementById('btn').disabled = true;
 
-            const isWin = Math.random() < 0.3;
-            // Целимся в 30% сектор (0-108 градусов)
-            const targetDeg = isWin ? (Math.random() * 90) : (Math.random() * 240 + 110);
+            // 1. Выбираем случайный угол (от 0 до 359)
+            const randomAngle = Math.floor(Math.random() * 360);
             
-            rotation += 1440 + targetDeg;
-            document.getElementById('pointer').style.transform = `rotate(${rotation}deg)`;
+            // 2. Добавляем полные обороты (1440 = 4 круга), чтобы крутилось красиво
+            currentRotation += 1440 + randomAngle;
+            
+            // 3. Крутим
+            document.getElementById('pointer').style.transform = `rotate(${currentRotation}deg)`;
+
+            // 4. Вычисляем итоговое положение для проверки (где стрелка остановилась относительно 0°)
+            const finalAngle = currentRotation % 360;
+            
+            // 30% шанса — это сектор от 0° до 108° (360 * 0.3)
+            const isWin = (finalAngle >= 0 && finalAngle <= 108);
 
             tg?.HapticFeedback?.impactOccurred('medium');
 
             setTimeout(() => {
                 isSpinning = false;
                 document.getElementById('btn').disabled = false;
+                
                 if(isWin) {
                     alert("🎉 Успех! Вы выиграли Букет тюльпанов!");
                     tg?.HapticFeedback?.notificationOccurred('success');
@@ -97,7 +103,7 @@
                     alert("Попробуйте снова!");
                     tg?.HapticFeedback?.notificationOccurred('error');
                 }
-            }, 3200);
+            }, 4200); // Таймер чуть больше, чем анимация
         }
     </script>
 </body>
